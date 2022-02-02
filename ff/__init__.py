@@ -4,7 +4,7 @@ from sqlite3 import OperationalError
 from pathlib import Path
 import json, textwrap
 
-app = web.application(__name__)
+app = web.application(__name__, args={"concept": "\w+"})
 
 
 concepts = {
@@ -21,21 +21,23 @@ concepts = {
     "sources": {"singular": "source", "example": None},
 }
 
+# todo create playthrough db with player_character table, pushes table (count INT), clues table (if a "tag" is in here, that clue's known), scenes (if "tag" in here, that scene's visited), edges/problems (if its in here it's possessed) etc.
+# todo intitalize playthrough db with ice_queen, 4 pushes, etc.
+# todo integrate with devi's ffjson repo
+
 for c, data in concepts.items():
     with open(Path(f"ff/json/{c}.json"), "r") as f:
         data["example"] = json.loads(f.read())
 
-# create database
-
 try:
+    # create database
     db = sql.db("ff.db")
 except OperationalError:
     pass
 
-# create database tables
-
 for table in concepts:
     try:
+        # create database tables
         db.create(table, "details JSON")
     except OperationalError:
         pass
@@ -78,14 +80,17 @@ def form_fields(d):
         if val == "primitive":
             result.append(primitive_field_to_form(key))
         elif val == "primitive list":
-            result.append("<fieldset>" + primitive_field_to_form(key) + "</fieldset>")
-            # todo make this dang button work with some js
-            result.append("<button type=button>Add Another</button>")
+            result.append(
+                f"<fieldset><legend>{key.title()}</legend>"
+                + primitive_field_to_form(key)
+                + "</fieldset>"
+            )
         elif isinstance(val, list):
             result.append(
-                "<fieldset>" + "\n".join([form_fields(x) for x in val]) + "</fieldset>"
+                f"<fieldset> <legend> {key.title()} </legend>"
+                + "\n".join([form_fields(x) for x in val])
+                + "</fieldset>"
             )
-            result.append("<button type=button>Add Another</button>")
         else:
             result.append(
                 f"<fieldset><legend>{key.title()}</legend>"
@@ -117,143 +122,12 @@ class Home:
         return app.view.home(concepts)
 
 
-@app.control("antagonist_reactions")
-class AntagonistReactions:
+@app.control("{concept}")
+class Concept:
     def get(self):
-        table_name = "antagonist_reactions"
-        singular = concepts["antagonist_reactions"]["singular"]
-        ex = concepts["antagonist_reactions"]["example"]
+        # self.concept == "sources"
+        table_name = self.concept
+        singular = concepts[self.concept]["singular"]
+        ex = concepts[self.concept]["example"]
         ex = form_fields(ex)
         return app.view.collection(singular, table_name, ex, db.select(table_name))
-
-
-@app.control("challenges")
-class Challenges:
-    def get(self):
-        table_name = "challenges"
-        singular = concepts["challenges"]["singular"]
-        ex = concepts["challenges"]["example"]
-        ex = form_fields(ex)
-        return app.view.collection(singular, table_name, ex, db.select(table_name))
-
-
-@app.control("characters")
-class Characters:
-    def get(self):
-        table_name = "characters"
-        singular = concepts["characters"]["singular"]
-        ex = concepts["characters"]["example"]
-        ex = form_fields(ex)
-        return app.view.collection(singular, table_name, ex, db.select(table_name))
-
-
-@app.control("clues")
-class Clues:
-    def get(self):
-        table_name = "clues"
-        singular = concepts["clues"]["singular"]
-        ex = concepts["clues"]["example"]
-        ex = form_fields(ex)
-        return app.view.collection(singular, table_name, ex, db.select(table_name))
-
-
-@app.control("edges")
-class Edges:
-    def get(self):
-        table_name = "edges"
-        singular = concepts["edges"]["singular"]
-        ex = concepts["edges"]["example"]
-        ex = form_fields(ex)
-        return app.view.collection(singular, table_name, ex, db.select(table_name))
-
-
-@app.control("general_abilities")
-class GeneralAbilities:
-    def get(self):
-        table_name = "general_abilities"
-        singular = concepts["general_abilities"]["singular"]
-        ex = concepts["general_abilities"]["example"]
-        ex = form_fields(ex)
-        return app.view.collection(singular, table_name, ex, db.select(table_name))
-
-
-@app.control("investigative_abilities")
-class InvestigativeAbilities:
-    def get(self):
-        table_name = "investigative_abilities"
-        singular = concepts["investigative_abilities"]["singular"]
-        ex = concepts["investigative_abilities"]["example"]
-        ex = form_fields(ex)
-        return app.view.collection(singular, table_name, ex, db.select(table_name))
-
-
-@app.control("items")
-class Items:
-    def get(self):
-        table_name = "items"
-        singular = concepts["items"]["singular"]
-        ex = concepts["items"]["example"]
-        ex = form_fields(ex)
-        return app.view.collection(singular, table_name, ex, db.select(table_name))
-
-
-@app.control("problems")
-class Problems:
-    def get(self):
-        table_name = "problems"
-        singular = concepts["problems"]["singular"]
-        ex = concepts["problems"]["example"]
-        ex = form_fields(ex)
-        return app.view.collection(singular, table_name, ex, db.select(table_name))
-
-
-@app.control("scenes")
-class Scenes:
-    def get(self):
-        table_name = "scenes"
-        singular = concepts["scenes"]["singular"]
-        ex = concepts["scenes"]["example"]
-        ex = form_fields(ex)
-        return app.view.collection(singular, table_name, ex, db.select(table_name))
-
-
-@app.control("sources")
-class Sources:
-    def get(self):
-        table_name = "sources"
-        singular = concepts["sources"]["singular"]
-        ex = concepts["sources"]["example"]
-        ex = form_fields(ex)
-        return app.view.collection(singular, table_name, ex, db.select(table_name))
-
-
-# ... but why write all that repetitive code? let's do some light metaprogramming and generate those classes
-## for c in concepts:
-# for c, data in concepts.items():
-#
-#    def get(self):
-#        print(c)
-#        table_name = c
-#        # I could have used "for c, data in concepts.items()" but I want to ensure these always refer to the global concepts dict and I wasn't sure if would be the case that way
-#        # global concepts
-#        # singular = concepts[c]["singular"]
-#        # schema = concepts[c]["example"].keys()
-#        singular = data["singular"]
-#        schema = data["example"].keys()
-#        return app.view.collection(singular, table_name, schema, db.select(table_name))
-#
-#    # dynamically creating a class for each game concept
-#    classname = c.title()
-#    globals()[classname] = type(
-#        classname,
-#        (object,),
-#        {
-#            "get": get,
-#        },
-#    )
-#    # decorate the class with web app route pattern
-#    # can't use class decorator syntactic sugar b/c we aren't using a normal "def class"; instead, update the definition of the class in place
-#    print(globals()[classname])
-#    globals()[classname] = app.control(c)(globals()[classname])
-#    # todo WTFFFF WHY ARE ALL THE ROUTES GOING TO SOURCES
-#    print(c, classname, globals()[classname])
