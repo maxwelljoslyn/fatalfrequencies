@@ -7,7 +7,7 @@ authors = ["Maxwell Joslyn <maxwelljoslyn@gmail.com>"]
 [tool.poetry.dependencies]
 python = "^3.9, <3.10"
 Flask = "^2.0.2"
-understory = "^0.0.83"
+understory = "^0.0.84"
 Flask-SQLAlchemy = "^2.5.1"
 
 [tool.poetry.dev-dependencies]
