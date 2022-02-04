@@ -1,0 +1,3 @@
+[submodule "FatalFrequenciesJSON"]
+	path = FatalFrequenciesJSON
+	url = https://github.com/dacharya64/FatalFrequenciesJSON
