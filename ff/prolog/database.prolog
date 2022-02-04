@@ -24,6 +24,8 @@ scene_description(sadies_sob_story, "Use this as an opportunity to establish Viv
 scene_clues(sadies_sob_story, someone_in_georges).
 scene_clues(sadies_sob_story, george_works_as).
 scene_characters(sadies_sob_story, sadie_cain).
+scene(fullers_electrical_repair).
+scene_name(fullers_electrical_repair, "Fuller's Electrical Repair").
 
 
 :- dynamic(clue/1).
@@ -114,6 +116,12 @@ challenge_advance(other_peoples_mail, "4", "You successfully purloin the letter.
 challenge_hold(other_peoples_mail, "2", "3", "As your fingers brush the edge of the letter, Fuller makes eye contact and his eyes begin to move downward. If you decide to play it off by deliberately noticing the letter’s address, you may spend a Push to convince him you’ll give the letter to Preston’s fiancée. He demurs to this suggestion, but may later change his mind. Grants access to alternate scene 'The Psychical Investigator'.").
 challenge_setback(other_peoples_mail, "Fuller sees you tip the letter into your handbag. After snatching it back, he roughly escorts you out of the building and threatens to call the police if you set foot inside again. If you have not yet spoken to Charlie Fitzpatrick, she follows you onto the street to see if you know something about George.").
 challenge_extra_problem(other_peoples_mail, fuller_becomes_suspicious).
+challenge(antagonist_reaction_1_challenge).
+challenge_type(antagonist_reaction_1_challenge, "cool").
+challenge_advance(antagonist_reaction_1_challenge, "6", "Gain Edge 11, 'Good Citizen'.").
+challenge_hold(antagonist_reaction_1_challenge, "2", "5", "They accept her argument, but give her the cold shoulder for a few days").
+challenge_setback(antagonist_reaction_1_challenge, "Gain Problem 23, 'Evicted'.").
+challenge_extra_problem(antagonist_reaction_1_challenge, no_good_deed).
 
 
 :- dynamic(character/1).
@@ -134,9 +142,9 @@ character_relationship_with(sadie_cain, george_preston, married, positive).
 investigative_ability(accounting, "Accounting", "You understand bookkeeping and accountancy procedures; you can read and keep financial records.", academic).
 
 
-:- dynamic(general_ability/5).
+:- dynamic(general_ability/4).
 
-general_ability(athletics, "Athletics", "Athletics allows you to perform general acts of physical derring-do, from running to jumping to throwing bundles of dynamite to dodging oncoming objects.", physical, 1).
+general_ability(athletics, "Athletics", "Athletics allows you to perform general acts of physical derring-do, from running to jumping to throwing bundles of dynamite to dodging oncoming objects.", physical).
 
 
 :- dynamic(player_edge/1).
@@ -150,5 +158,19 @@ player_edge(ice_queen).
 player_problem(sucker_for_a_pretty_face).
 player_investigative_ability(accounting).
 player_investigative_ability(assess_honesty).
-player_general_ability(athletics).
+player_general_ability(athletics, 1).
 player_pushes(4).
+
+
+:- dynamic(antagonist_reaction/1).
+:- dynamic(challenge_name/2).
+:- dynamic(challenge_type/2).
+:- dynamic(challenge_advance/3).
+:- dynamic(challenge_hold/4).
+:- dynamic(challenge_setback/2).
+:- dynamic(challenge_extra_problem/2).
+
+antagonist_reaction(antagonist_reaction_1).
+antagonist_reaction_trigger(antagonist_reaction_1, "Holds Problem 11, 'Easier in than out'").
+antagonist_reaction_description(antagonist_reaction_1, "MacAdams’ cops toss Viv’s place, causing conflict with her landlady and roommate").
+antagonist_reaction_challenge(antagonist_reaction_1, antagonist_reaction_1_challenge).
