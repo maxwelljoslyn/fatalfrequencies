@@ -340,14 +340,14 @@ def convert_general_abilities():
 	    data = json.load(data_file)
 
 	# add in the predicate definitions 
-	fWrite.write(":- dynamic(general_ability/5).\n")
+	fWrite.write(":- dynamic(general_ability/4).\n")
 	fWrite.write("\n")
 	# runs through each element in JSON object and extracts the data, writing it to file
 	for item in data:
 		pred = "tag" 
 		global tag 
 
-		result_string = "general_ability(" + str(item["tag"]) + ", \"" +  str(item["general_ability_name"]) + "\", \"" + str(item["general_ability_description"]) + "\", " + str(item["general_ability_type"]) + ", " + str(item["general_ability_skill_value"]) + ")."
+		result_string = "general_ability(" + str(item["tag"]) + ", \"" +  str(item["general_ability_name"]) + "\", \"" + str(item["general_ability_description"]) + "\", " + str(item["general_ability_type"]) + ")."
 		fWrite.write(result_string + "\n")
 
 def convert_player_character():
@@ -375,13 +375,41 @@ def convert_player_character():
 		fWrite.write("player_investigative_ability(" + item + ").\n")
 
 	for item in data["player_general_ability"]: 
-		fWrite.write("player_general_ability(" + item + ").\n")
+		fWrite.write("player_general_ability(" + item + ", " + str(data["player_general_ability"][item]) + ").\n")
 
 	fWrite.write("player_pushes(" + str(data["player_pushes"]) + ").\n")
 
 	for item in data["player_item"]: 
 		fWrite.write("player_item(" + str(item) + ").\n")
 
+def convert_antagonist_reactions():
+	# opens the JSON file with the data and saves it to a JSON object
+	with open('antagonist_reactions.json') as data_file:
+	    data = json.load(data_file)
+
+	# add in the predicate definitions 
+	fWrite.write(":- dynamic(antagonist_reaction/1).\n")
+	fWrite.write(":- dynamic(challenge_name/2).\n")
+	fWrite.write(":- dynamic(challenge_type/2).\n")
+	fWrite.write(":- dynamic(challenge_advance/3).\n")
+	fWrite.write(":- dynamic(challenge_hold/4).\n")
+	fWrite.write(":- dynamic(challenge_setback/2).\n")
+	fWrite.write(":- dynamic(challenge_extra_problem/2).\n")
+	fWrite.write("\n")
+	# runs through each element in JSON object and extracts the data, writing it to file
+	for item in data:
+		pred = "tag" 
+		global tag 
+		tag = check_in_item_tag(pred, item, "antagonist_reaction")
+		
+		pred = "antagonist_reaction_trigger"
+		check_in_item_quotes(pred, item)
+
+		pred = "antagonist_reaction_description"
+		check_in_item_quotes(pred, item)
+
+		pred = "antagonist_reaction_challenge"
+		check_in_item(pred, item)
 
 def add_front_matter(): 
 	fWrite.write(":- set_prolog_flag(double_quotes, atom).\n")
@@ -413,5 +441,8 @@ fWrite.write("\n\n")
 convert_general_abilities()
 fWrite.write("\n\n")
 convert_player_character()
+fWrite.write("\n\n")
+convert_antagonist_reactions()
 fWrite.close()
+
 
