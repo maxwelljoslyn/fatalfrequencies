@@ -43,62 +43,6 @@ for table in concepts:
         pass
 
 
-def preprocess_json(d):
-    result = {}
-
-    def primitive(x):
-        return not isinstance(x, list) and not isinstance(x, dict)
-
-    for key, val in d.items():
-        if primitive(val):
-            result[key] = "primitive"
-        elif isinstance(val, list):
-            if not val:
-                # empty and will eventually hold tags, ie strings, ie primitives
-                result[key] = "primitive list"
-            elif primitive(val[0]):
-                result[key] = "primitive list"
-            else:
-                result[key] = [preprocess_json(x) for x in val]
-        else:
-            result[key] = preprocess_json(val)
-    return result
-
-
-def primitive_field_to_form(field):
-    if field in ("trigger", "reaction", "description"):
-        return f"<label for={field}>{field.title()}</label><textarea id={field} name={field} rows=5 cols=33></textarea>"
-    else:
-        # todo add is_number clause to preprocess_json, form_fields, and this function... so I can add type=number HTML fields for challenge thresholds (the only place that need it)
-        return f"<label>{field.title()}<input type=text name={field}></input></label>"
-
-
-def form_fields(d):
-    d = preprocess_json(d)
-    result = []
-    for key, val in d.items():
-        if val == "primitive":
-            result.append(primitive_field_to_form(key))
-        elif val == "primitive list":
-            result.append(
-                f"<fieldset><legend>{key.title()}</legend>"
-                + primitive_field_to_form(key)
-                + "</fieldset>"
-            )
-        elif isinstance(val, list):
-            result.append(
-                f"<fieldset> <legend> {key.title()} </legend>"
-                + "\n".join([form_fields(x) for x in val])
-                + "</fieldset>"
-            )
-        else:
-            result.append(
-                f"<fieldset><legend>{key.title()}</legend>"
-                + form_fields(val)
-                + "</fieldset>"
-            )
-    return "\n".join(result)
-
 
 @app.wrap
 def template(handler, app):
