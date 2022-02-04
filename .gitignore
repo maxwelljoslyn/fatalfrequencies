@@ -2,3 +2,5 @@
 rejected
 *.db
 *.pdf
+poetry.lock
+todo.txt
