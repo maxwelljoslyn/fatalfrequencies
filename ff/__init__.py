@@ -26,7 +26,7 @@ concepts = {
 # todo integrate with devi's ffjson repo
 
 for c, data in concepts.items():
-    with open(Path(f"ff/json/{c}.json"), "r") as f:
+    with open(Path(f"ff/json/{c}.json"), "r", encoding='utf-8') as f:
         data["example"] = json.loads(f.read())
 
 try:
