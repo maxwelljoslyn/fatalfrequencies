@@ -1,0 +1,66 @@
+$def with (tables)
+
+
+<a href="/">Go Home</a>
+
+
+<ul>
+$for table in tables:
+    <li> <a href="/gm/$table">$table</a> </li>
+</ul>
+
+<label>
+  Click Me, Please (todo: show clue state on page load)
+  <input id=cake-checkbox checked=false type=checkbox data-tag=example_clue onchange=cake()>
+  </input>
+</label>
+
+<div id=cake-container>
+</div>
+
+
+<button type=button onclick=juice()>
+  Press Me
+</button>
+
+<div id=juice-container>
+</div>
+
+  <script>
+    function cake() {
+      let k = document.getElementById('cake-container')
+      let box = document.getElementById('cake-checkbox')
+
+      const data = {
+        "tag": box.dataset.tag,
+        "state": box.checked
+      }
+
+      fetch('/upload-clue', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+      .then(response => response.json())
+      .then(success => {
+        console.log('It worked:', success)
+        if (success[data['tag']] === 'known') {
+          k.innerHTML = 'Clue is <b>known</b>'
+        }
+        else {
+          k.innerHTML = 'Clue is <b>unknown</b>'
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error)
+      })
+
+    }
+
+    function juice() {
+      let j = document.getElementById('juice-container')
+      j.insertAdjacentHTML('beforeend', '<p>When complete, this button will instead ~send state~ to the backend.</p>')
+    }
+  </script>

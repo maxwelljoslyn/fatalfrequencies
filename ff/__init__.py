@@ -97,3 +97,19 @@ class Concept:
         table_name = self.concept
         singular = concepts[self.concept]["singular"]
         return app.view.collection(singular, table_name, db.select(table_name))
+
+
+@app.control("upload-clue")
+class UploadClue:
+    def post(self):
+        tag, state = tx.request.body["tag"], tx.request.body["state"]
+        # todo actually save the clue to the db with the current playthrough id
+        return json.dumps({tag: "known" if state else "unknown"})
+
+
+@app.control("gm")
+class GM:
+    def get(self):
+        return app.view.gm(concepts)
+
+
