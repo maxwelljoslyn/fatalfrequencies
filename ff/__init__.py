@@ -2,7 +2,7 @@ from understory import web, sql
 from understory.web import tx
 from sqlite3 import OperationalError
 from pathlib import Path
-import json, textwrap
+import json
 
 app = web.application(__name__, args={"concept": "\w+"})
 
