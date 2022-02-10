@@ -91,12 +91,9 @@ class Home:
         return app.view.home(concepts)
 
 
-@app.control("{concept}")
+@app.control("gm/{concept}")
 class Concept:
     def get(self):
-        # self.concept == "sources"
         table_name = self.concept
         singular = concepts[self.concept]["singular"]
-        ex = concepts[self.concept]["example"]
-        ex = form_fields(ex)
-        return app.view.collection(singular, table_name, ex, db.select(table_name))
+        return app.view.collection(singular, table_name, db.select(table_name))

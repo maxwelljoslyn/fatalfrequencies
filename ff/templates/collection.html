@@ -1,16 +1,8 @@
-$def with (singular, table_name, example, rows)
+$def with (singular, table_name, rows)
+
+<a href="/">Go Home</a>
 
 <h1>$table_name.title()</h1>
-
-$#Create new $singular:
-
-$#<form method=post action=/upload>
-$#<input type=hidden id=table_name name=table_name value=$table_name></input>
-$#
-$#$:example
-$#
-$#<input type=submit value="Upload $singular"</input>
-$#</form>
 
 Existing $table_name:
 
@@ -19,9 +11,7 @@ Existing $table_name:
   <li>$d['details']</li>
 </ul>
 
-<a href="/">Go Home</a>
 
 
-
-$if singular == 'character':
-    <script>console.log("I'm a script")</script>
+$#$if singular == 'character':
+$#    <script>console.log("I'm a script")</script>
