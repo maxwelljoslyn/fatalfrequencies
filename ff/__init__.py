@@ -6,6 +6,7 @@ import json
 
 app = web.application(__name__, args={"concept": "\w+"})
 
+json_dir = Path("FatalFrequenciesJSON")
 
 concepts = {
     "antagonist_reactions": {"singular": "antagonist_reaction"},
@@ -21,27 +22,47 @@ concepts = {
     "sources": {"singular": "source"},
 }
 
-# todo create playthrough db with player_character table, pushes table (count INT), clues table (if a "tag" is in here, that clue's known), scenes (if "tag" in here, that scene's visited), edges/problems (if its in here it's possessed) etc.
-# todo intitalize playthrough db with ice_queen, 4 pushes, etc.
-# todo integrate with devi's ffjson repo
 
-for c, data in concepts.items():
-    with open(Path(f"ff/json/{c}.json"), "r") as f:
-        data["example"] = json.loads(f.read())
 
-try:
-    # create database
-    db = sql.db("ff.db")
-except OperationalError:
-    pass
-
-for table in concepts:
+def set_up_database():
+    # get reference to database, creating it if necessary
     try:
-        # create database tables
-        db.create(table, "details JSON")
+        db = sql.db("ff.db")
     except OperationalError:
         pass
 
+    # create non-varying tables
+    for c in concepts:
+        try:
+            db.create(c, "details JSON")
+        except OperationalError:
+            pass
+
+    # fill database tables
+    for c in concepts:
+        p = json_dir / f"{c}.json"
+        with open(p, "r", encoding="utf-8") as f:
+            extracts = json.loads(f.read())
+            for j in extracts:
+                if not j.get("tag"):
+                    print(f"WARNING no tag on {j}")
+                if c == "clues":
+                    j.pop("known")
+                if c == "scenes":
+                    j.pop("visited")
+                with db.transaction as cur:
+                    already_entered = cur.select(
+                        c, where="json_extract(details, '$.tag') = ?", vals=(j["tag"],)
+                    )
+                    try:
+                        # select() returns Results object; if any rows match query, there will be a list of Row objects inside its 0th index
+                        already_entered[0]
+                    except IndexError:
+                        cur.insert(c, details=j)
+    return db
+
+
+db = set_up_database()
 
 
 @app.wrap
