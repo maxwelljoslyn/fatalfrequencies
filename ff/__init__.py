@@ -22,6 +22,11 @@ concepts = {
     "sources": {"singular": "source"},
 }
 
+per_playthrough_state = {
+    "playthroughs": "id INTEGER PRIMARY KEY, player TEXT NOT NULL, gm TEXT NOT NULL, status JSON",
+    "clues_known": "tag TEXT, playthrough_id INTEGER, FOREIGN KEY(playthrough_id) REFERENCES playthroughs(id))",
+    "scenes_visited": "tag TEXT, playthrough_id INTEGER, FOREIGN KEY(playthrough_id) REFERENCES playthroughs(id))",
+}
 
 
 def set_up_database():
@@ -30,6 +35,13 @@ def set_up_database():
         db = sql.db("ff.db")
     except OperationalError:
         pass
+
+    # create varying tables
+    for k, v in per_playthrough_state.items():
+        try:
+            db.create(k, v)
+        except OperationalError:
+            pass
 
     # create non-varying tables
     for c in concepts:
