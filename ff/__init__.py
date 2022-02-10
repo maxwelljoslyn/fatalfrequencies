@@ -8,17 +8,17 @@ app = web.application(__name__, args={"concept": "\w+"})
 
 
 concepts = {
-    "antagonist_reactions": {"singular": "antagonist_reaction", "example": None},
-    "challenges": {"singular": "challenge", "example": None},
-    "characters": {"singular": "character", "example": None},
-    "clues": {"singular": "clue", "example": None},
-    "edges": {"singular": "edge", "example": None},
-    "general_abilities": {"singular": "general_ability", "example": None},
-    "investigative_abilities": {"singular": "investigative_ability", "example": None},
-    "items": {"singular": "item", "example": None},
-    "problems": {"singular": "problem", "example": None},
-    "scenes": {"singular": "scene", "example": None},
-    "sources": {"singular": "source", "example": None},
+    "antagonist_reactions": {"singular": "antagonist_reaction"},
+    "challenges": {"singular": "challenge"},
+    "characters": {"singular": "character"},
+    "clues": {"singular": "clue"},
+    "edges": {"singular": "edge"},
+    "general_abilities": {"singular": "general_ability"},
+    "investigative_abilities": {"singular": "investigative_ability"},
+    "items": {"singular": "item"},
+    "problems": {"singular": "problem"},
+    "scenes": {"singular": "scene"},
+    "sources": {"singular": "source"},
 }
 
 # todo create playthrough db with player_character table, pushes table (count INT), clues table (if a "tag" is in here, that clue's known), scenes (if "tag" in here, that scene's visited), edges/problems (if its in here it's possessed) etc.
@@ -50,14 +50,6 @@ def template(handler, app):
     yield
     if tx.response.headers.content_type == "text/html":
         tx.response.body = app.view.template(tx.response.body)
-
-
-@app.control("upload")
-class Upload:
-    def post(self):
-        form = web.form()
-        table = form.pop("table_name")
-        db.insert(table, {"details": form})
 
 
 @app.control("")
