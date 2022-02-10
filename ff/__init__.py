@@ -113,3 +113,32 @@ class GM:
         return app.view.gm(concepts)
 
 
+@app.control("player")
+class Player:
+    def get(self):
+        r = db.select(
+            # todo adapt this to selected playthrough
+            "playthroughs",
+            what="id, status",
+            where="player = 'test' AND gm = 'test'",
+        )
+        r = list(r)
+        # todo if you have multiple playthroughs with the same gm AND player, return view.select_playthrough
+        if len(r) == 1:
+            info = r[0]
+            pid = info["id"]
+            status = info["status"]
+            clues = db.select(
+                "clues_known", what="tag", where="playthrough_id = ?", vals=(pid,)
+            )
+        else:
+            status = "todo"
+            clues = [
+                "See #todo in Player() view implementation",
+            ]
+
+        return app.view.player(status, clues)
+        # status  # Results object
+        # status[0]  #  Row object
+        # status[0][0]  #  thing actually contained in first Row
+
