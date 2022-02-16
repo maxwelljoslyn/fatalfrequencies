@@ -54,6 +54,7 @@ def set_up_database():
     with open(json_dir / "player_character.json", "r", encoding="utf-8") as f:
         starting_status = json.loads(f.read())
     db.insert("playthroughs", id=1, player="test", gm="test", status=starting_status)
+
     # fill database tables
     for c in concepts:
         p = json_dir / f"{c}.json"
@@ -75,15 +76,15 @@ def set_up_database():
                         already_entered[0]
                     except IndexError:
                         cur.insert(c, details=j)
-    return db
 
 
-db = set_up_database()
+set_up_database()
 
 
 @app.wrap
-def template(handler, app):
-    """Wrap response with site-wide template."""
+def wrap(handler, app):
+    """Wrap the response with data for all requests."""
+    tx.host.db = sql.db("ff.db")
     yield
     if tx.response.headers.content_type == "text/html":
         tx.response.body = app.view.template(tx.response.body)
@@ -100,7 +101,7 @@ class Concept:
     def get(self):
         table_name = self.concept
         singular = concepts[self.concept]["singular"]
-        return app.view.collection(singular, table_name, db.select(table_name))
+        return app.view.collection(singular, table_name, tx.db.select(table_name))
 
 
 @app.control("upload-clue")
@@ -120,7 +121,7 @@ class GM:
 @app.control("player")
 class Player:
     def get(self):
-        r = db.select(
+        r = tx.db.select(
             # todo adapt this to selected playthrough
             "playthroughs",
             what="id, status",
@@ -132,7 +133,7 @@ class Player:
             info = r[0]
             pid = info["id"]
             status = info["status"]
-            clues = db.select(
+            clues = tx.db.select(
                 "clues_known", what="tag", where="playthrough_id = ?", vals=(pid,)
             )
         else:
