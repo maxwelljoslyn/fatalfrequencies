@@ -1,6 +1,6 @@
 from understory import web, sql
 from understory.web import tx
-from sqlite3 import OperationalError
+from sqlite3 import OperationalError, IntegrityError
 from pathlib import Path
 import json
 
@@ -53,7 +53,12 @@ def set_up_database():
     # create test playthrough
     with open(json_dir / "player_character.json", "r", encoding="utf-8") as f:
         starting_status = json.loads(f.read())
-    db.insert("playthroughs", id=1, player="test", gm="test", status=starting_status)
+    try:
+        db.insert(
+            "playthroughs", id=1, player="test", gm="test", status=starting_status
+        )
+    except IntegrityError:
+        pass
 
     # fill database tables
     for c in concepts:
