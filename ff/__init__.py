@@ -93,7 +93,7 @@ def wrap(handler, app):
 @app.control("")
 class Home:
     def get(self):
-        return app.view.home(concepts)
+        return app.view.home()
 
 
 @app.control("gm/{concept}")
@@ -146,4 +146,3 @@ class Player:
         # status  # Results object
         # status[0]  #  Row object
         # status[0][0]  #  thing actually contained in first Row
-
