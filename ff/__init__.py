@@ -50,6 +50,10 @@ def set_up_database():
         except OperationalError:
             pass
 
+    # create test playthrough
+    with open(json_dir / "player_character.json", "r", encoding="utf-8") as f:
+        starting_status = json.loads(f.read())
+    db.insert("playthroughs", id=1, player="test", gm="test", status=starting_status)
     # fill database tables
     for c in concepts:
         p = json_dir / f"{c}.json"
