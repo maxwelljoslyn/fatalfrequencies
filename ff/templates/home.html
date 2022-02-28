@@ -1,9 +1,10 @@
 $def with ()
 
-<big>
-  Player? <a href=/player>Click here</a>.
-</big>
+<form action=/signin method=post>
+  <button name=role value=player>I'm a player</button>
+  <button name=role value=gm>I'm a GM</button>
+</form>
 
-<big>
-  GM? <a href=/gm>Click here</a>.
-</big>
+<p>
+Session is $tx.user.session
+</p>

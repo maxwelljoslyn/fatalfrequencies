@@ -1,0 +1,25 @@
+$def with (games)
+
+$ game = tx.user.session.get('game')
+$if game:
+    <h3> Enter Games You've Started </h3>
+    <a href=/games/$game>$game</a>
+    <form method=post action=/leave>
+    <button> Leave Game </button>
+    </form>
+$else:
+    <h3> Choose Game to Join </h3>
+    <form method=post action=/join>
+        <ul>
+        $for game in games:
+            <li><label><input name=game value=$game['rowid'] type=radio>$game['rowid']</label></li>
+        </ul>
+        <button>
+        Join Game
+        </button>
+    </form>
+
+$if tx.user.session['role'] == 'gm':
+    <form method=post action=/games>
+    <button>New Game</button>
+    </form>

@@ -3,8 +3,24 @@ $def with (inner)
 <html>
 <head>
 <link rel=stylesheet href=/static/style.css>
+<script src="/static/leader-line.min.js"></script>
 </head>
 <body>
+
+$if tx.request.uri.path != "":
+    <p>
+    <a href="/">Home</a>
+    </p>
+
 $:inner
+
+$if tx.user.session.get('role'):
+    <form action=/signout method=post>
+      <button>
+        Sign Out
+      </button>
+    </form>
+$tx.user.session
+
 </body>
 </html>

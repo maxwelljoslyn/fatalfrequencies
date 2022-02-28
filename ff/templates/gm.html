@@ -1,12 +1,13 @@
 $def with (tables)
 
 
-<a href="/">Go Home</a>
-
+<form method=post action=/games>
+  <button>New Game</button>
+</form>
 
 <ul>
 $for table in tables:
-    <li> <a href="/gm/$table">$table</a> </li>
+    <li> <a href="/gm/concepts/$table">$table</a> </li>
 </ul>
 
 <label>

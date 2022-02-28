@@ -1,0 +1,40 @@
+$def with (scene)
+
+<p>
+The player is currently in <b>$:scene['name']</b>
+</p>
+
+<br/>
+
+TODO: player or gm selection of one of the starting problems
+
+<p>
+Leadouts:
+</p>
+
+
+<ol>
+  $for L in scene['lead_outs']:
+    <li>$:L['name']</li>
+</ol>
+
+<br/>
+<br/>
+
+<p>
+Here is the text to read:
+</p>
+
+<br/>
+
+$ chunks = scene['chunks']
+  $for chunk in chunks:
+      $for k, v in chunk.items():
+          $for unit in v:
+              $if k == 'clues':
+                  $if 'investigative_ability' in unit:
+                      <p><strong>$str(unit['investigative_ability'])</strong> reveals: $str(unit['description'])</p>
+                  $else:
+                      <p>$str(unit['description'])</p>
+              $else:
+                  <p>$str(unit)</p>
