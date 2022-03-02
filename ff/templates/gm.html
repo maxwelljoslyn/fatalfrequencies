@@ -1,14 +1,42 @@
-$def with (tables)
+$def with (scene, status)
 
+(todo pull player name from games table)
 
-<form method=post action=/games>
-  <button>New Game</button>
-</form>
+<h2> Player Status </h2>
+
+<p>
+The player is currently in <b>$:scene</b>
+</p>
+
+Player's problems, edges, etc:
+
+$:status
+
+<h2> Leadouts </h2>
+
+Player has found clues leading to todo and todo.
+
+Other leadouts are todo and todo. These clues can lead there:
 
 <ul>
-$for table in tables:
-    <li> <a href="/gm/concepts/$table">$table</a> </li>
+  <li>foo</li>
+  <li>bar</li>
 </ul>
+
+
+<h2>Read-Aloud Text</h2>
+
+<h2>Remaining Clues</h2>
+
+
+<h2> View All Data </h2>
+
+$#<ul>
+$#$for table in tables:
+$#    <li> <a href="/gm/concepts/$table">$table</a> </li>
+$#</ul>
+
+<h2> Creative Support </h2>
 
 <label>
   Click Me, Please (todo: show clue state on page load)

@@ -93,15 +93,13 @@ def scene_depth(tag, scenes):
 class Home:
     def get(self):
         role = tx.user.session.get("role")
-        if role == "player":
-            game = tx.user.session.get("game")
-            if game:
-                games = []
-            else:
-                games = tx.db.select("games", what="rowid")
-            return app.view.player(games)
-        elif role == "gm":
-            return app.view.gm(concepts)
+        game = tx.user.session.get("game")
+        if game:
+            games = []
+        else:
+            games = tx.db.select("games", what="rowid")
+        if role:
+            return app.view.join(games)
         else:
             return app.view.home()
 
@@ -158,7 +156,12 @@ class Game:
         status = tx.db.select("games", what="status", where="rowid = ?", vals=[game])[
             0
         ]["status"]
-        return app.view.game(status)
+        role = tx.user.session.get("role")
+        if role == "player":
+            return app.view.player(status)
+        else:
+            scene = current_scene()
+            return app.view.gm(scene, status)
 
 
 @app.control("concepts/{concept}")
