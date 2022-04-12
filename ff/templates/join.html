@@ -19,7 +19,7 @@ $else:
         </button>
     </form>
 
-$if tx.user.session['role'] == 'gm':
+$if tx.user.session.get('role') == 'gm':
     <form method=post action=/games>
     <button>New Game</button>
     </form>
