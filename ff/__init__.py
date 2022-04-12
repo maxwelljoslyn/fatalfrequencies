@@ -198,41 +198,6 @@ class Concept:
             return app.view.collection(singular, table_name, tx.db.select(table_name))
 
 
-# @app.control("gm/current")
-# class Current:
-#    """Shows player status, current scene, play trace and other true-right-now info"""
-#
-#    def get(self):
-#        s = tx.db.select(
-#            "scenes",
-#            what="*",
-#            where="json_extract(details, '$.tag') = ?",
-#            vals=[current_scene()],
-#        )[0][0]
-#        # replace leadout tags with whole scenes
-#        for idx, each in enumerate(s["lead_outs"]):
-#            lo = tx.db.select(
-#                "scenes",
-#                what="*",
-#                where="json_extract(details, '$.tag') = ?",
-#                vals=[each],
-#            )[0][0]
-#            s["lead_outs"][idx] = lo
-#        # replace chunk clue tags with whole clues
-#        for idx, chunk in enumerate(s["chunks"]):
-#            for k, v in chunk.items():
-#                if k == "clues":
-#                    for which, unit in enumerate(v):
-#                        clue = tx.db.select(
-#                            "clues",
-#                            what="*",
-#                            where="json_extract(details, '$.tag') = ?",
-#                            vals=[unit],
-#                        )[0][0]
-#                        s["chunks"][idx]["clues"][which] = clue
-#        return app.view.current(s)
-
-
 def add_clue(tag, game):
     query = tx.db.select(
         "clues_known", where="game_id = ? and  tag = ?", vals=[game, tag]
