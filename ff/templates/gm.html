@@ -49,6 +49,15 @@ $#</ul>
 <div id=clue-container>
 </div>
 
+<label>
+  Is Sadie's Visited?
+  <input id=scene-checkbox checked=false type=checkbox data-tag=sadies_sob_story onchange=uploadScene()>
+  </input>
+</label>
+
+<div id=scene-container>
+</div>
+
 
 <script>
 function uploadClue() {
@@ -75,6 +84,38 @@ function uploadClue() {
     }
     else {
       k.innerHTML = 'Clue is <b>unknown</b>'
+    }
+  })
+  .catch((error) => {
+    console.error('Error:', error)
+  })
+
+}
+
+function uploadScene() {
+  let k = document.getElementById('scene-container')
+  let box = document.getElementById('scene-checkbox')
+
+  const data = {
+    "tag": box.dataset.tag,
+    "state": box.checked
+  }
+
+  fetch('/games/$game/upload-scene', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  })
+  .then(response => response.json())
+  .then(success => {
+    console.log('It worked:', success)
+    if (success[data['tag']] === 'visited') {
+      k.innerHTML = 'Scene is <b>visited</b>'
+    }
+    else {
+      k.innerHTML = 'Scene is <b>unvisited</b>'
     }
   })
   .catch((error) => {

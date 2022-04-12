@@ -210,6 +210,18 @@ def remove_clue(tag, game):
     tx.db.delete("clues_known", where="game_id = ? and  tag = ?", vals=[game, tag])
 
 
+def add_scene(tag, game):
+    query = tx.db.select(
+        "scenes_visited", where="game_id = ? and  tag = ?", vals=[game, tag]
+    )
+    if len(query) == 0:
+        tx.db.insert("scenes_visited", game_id=game, tag=tag)
+
+
+def remove_scene(tag, game):
+    tx.db.delete("scenes_visited", where="game_id = ? and  tag = ?", vals=[game, tag])
+
+
 @app.control("games/{game}/upload-clue")
 class UploadClue:
     def post(self, game):
@@ -221,6 +233,19 @@ class UploadClue:
         else:
             raise web.BadRequest()
         return json.dumps({tag: "known" if state else "unknown"})
+
+
+@app.control("games/{game}/upload-scene")
+class UploadScene:
+    def post(self, game):
+        tag, state = tx.request.body.get("tag"), tx.request.body.get("state")
+        if state is True:
+            add_scene(tag, game)
+        elif state is False:
+            remove_scene(tag, game)
+        else:
+            raise web.BadRequest()
+        return json.dumps({tag: "visited" if state else "unvisited"})
 
 
 @app.control("filldatabase")
