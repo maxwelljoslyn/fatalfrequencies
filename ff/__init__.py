@@ -193,10 +193,7 @@ class Concept:
         table_name = concept
         singular = concepts[concept]["singular"]
         if concept == "scenes":
-            ss = get_scenes()
-            for s in ss:
-                ss[s]["depth"] = scene_depth(s, ss)
-            return app.view.scenes("scene", "scenes", ss)
+            return get_scenes()
         else:
             return app.view.collection(singular, table_name, tx.db.select(table_name))
 
