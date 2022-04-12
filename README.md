@@ -53,11 +53,14 @@ Logic Programming for Adaptive NPC Goals
 Playthroughs
 - todo def new_playthrough()
 - store playthrough id somewhere in app (session)
+- add "select playthrough" link to home page if not in session
 - remove checks for more than one playthrough e.g. in class Player (bc session storage will have that chosen, we won't need to check if player has been in more than one)
-- add current scene to playthrough table
 - if playthrough id not set in session, any view redirects to view.select_playthrough (show current scene, not only to help remember where they left off, but also to help partially disambiguate if the same two people play multiple through multiple times, as is especially likely while we are testing)
-- add "select playthrough" link to home page
-- figure out how best to store player path through scenes
+- decide how to store play trace (list of events: add/remove edge/problem/item, meet person, find clue, transition to scene ...?)
+-- we are already storing CURRENT player status, as well as clues known and scenes visited ... but that doesn't give us ordering information, and furthermore current schema of those tables only has a 'tag' column
+-- should augment clues with 'scene found in' or similar... but i'm feeling like generalizing both to an 'event' table will be profitable as part of play traces
+- initialize play trace in db
+- write current_scene() (ask db for last 'transition to scene' event, take that tag and lookup its details)
 
 Other
 - inform GM when players in previous playthroughs did/didn't recover certain clues, etc.

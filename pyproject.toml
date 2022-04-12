@@ -7,7 +7,6 @@ authors = ["Maxwell Joslyn <maxwelljoslyn@gmail.com>"]
 [tool.poetry.dependencies]
 python = "^3.9"
 understory = "^0.0.153"
-Flask-SQLAlchemy = "^2.5.1"
 
 [tool.poetry.dev-dependencies]
 black = "^21.12b0"

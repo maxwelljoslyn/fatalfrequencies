@@ -10,6 +10,9 @@ from random import randint
 # import queries
 # from queries import current_scene, get_scenes, scene_depth
 
+json_dir = Path("FatalFrequenciesJSON")
+
+
 concepts = {
     "antagonist_reactions": {"singular": "antagonist_reaction"},
     "challenges": {"singular": "challenge"},
@@ -32,19 +35,18 @@ app = web.application(
         "clues_known": {
             "tag": "TEXT",
             "game_id": "INTEGER",
+            # TODO shouldn't be able to have more than one row for a given pair (tag, game_id) ... how to enforce in database? for now, enforce in add_clue
             # FOREIGN KEY(game_id) REFERENCES games(rowid)",
         },
         "scenes_visited": {
             "tag": "TEXT",
             "game_id": "INTEGER",
+            # TODO same uniqueness-of-pair issue as clues_known
             # FOREIGN KEY(game_id) REFERENCES games(rowid)",
         },
         **{k: {"details": "JSON"} for k in concepts},
     },
 )
-
-
-json_dir = Path("FatalFrequenciesJSON")
 
 
 def current_scene():
@@ -75,6 +77,11 @@ def get_scenes(aslist=False):
             d.pop("tag")
             result[tag] = d
     return result
+
+
+def get_visited_scenes(game):
+    query = tx.db.select("scenes_visited", where="game_id = ?", vals=[game])
+    return [row[0] for row in query]
 
 
 def scene_depth(tag, scenes):
@@ -164,6 +171,22 @@ class Game:
             return app.view.gm(scene, status)
 
 
+@app.control("games/{game}/unvisited")
+class UnvisitedScenes:
+    def get(self, game):
+        scenes = get_scenes()
+        visited = get_visited_scenes(game)
+        return {scene: info for scene, info in scenes.items() if scene not in visited}
+
+
+@app.control("games/{game}/visited")
+class VisitedScenes:
+    def get(self, game):
+        scenes = get_scenes()
+        visited = get_visited_scenes(game)
+        return {scene: info for scene, info in scenes.items() if scene in visited}
+
+
 @app.control("concepts/{concept}")
 class Concept:
     def get(self, concept):
@@ -213,14 +236,28 @@ class Concept:
 #        return app.view.current(s)
 
 
-@app.control("upload-clue")
+def add_clue(tag, game):
+    query = tx.db.select(
+        "clues_known", where="game_id = ? and  tag = ?", vals=[game, tag]
+    )
+    if len(query) == 0:
+        tx.db.insert("clues_known", game_id=game, tag=tag)
+
+
+def remove_clue(tag, game):
+    tx.db.delete("clues_known", where="game_id = ? and  tag = ?", vals=[game, tag])
+
+
+@app.control("games/{game}/upload-clue")
 class UploadClue:
-    def post(self):
-        tag, state = tx.request.body["tag"], tx.request.body["state"]
-        # if state is 'known', events.find_clue(tag, tx.session['playthrough_id') - make this idempotent
-        # else remove_clue from events table by (tag, tx.session['playthrough_id') -- handling error gracefully, and make 'removing clue' idempotent
-        # todo update player interface by sending a message ... to their IP? or will they use polling?
-        # update GM interface by returning json ........
+    def post(self, game):
+        tag, state = tx.request.body.get("tag"), tx.request.body.get("state")
+        if state is True:
+            add_clue(tag, game)
+        elif state is False:
+            remove_clue(tag, game)
+        else:
+            raise web.BadRequest()
         return json.dumps({tag: "known" if state else "unknown"})
 
 
